@@ -64,23 +64,16 @@
   register: koha_conf
 
 - name: Check for fi-FI translation
-  command: koha-translate --list
+  command: MEMCACHED_SERVERS=127.0.0.1:11211 MEMCACHED_NAMESPACE=KOHA koha-translate --list
   failed_when: False
   register: koha_installed_translations
   changed_when: '"fi-FI" not in koha_installed_translations.stdout'
   when: koha_install_fi_translation
 
 - name: Install fi-FI translation
-  shell: "koha-translate --install fi-FI || koha-translate --update fi-FI"
+  shell: "MEMCACHED_SERVERS=127.0.0.1:11211 MEMCACHED_NAMESPACE=KOHA koha-translate --install fi-FI || MEMCACHED_SERVERS=127.0.0.1:11211 MEMCACHED_NAMESPACE=KOHA koha-translate --update fi-FI"
   when: koha_install_fi_translation and koha_installed_translations.changed
   register: koha_lng_install
-  failed_when: 
-    # TODO: this is temporary workaround with stderr check below:
-    #       should be reworked by committing fix to KohaCommuity bugzilla:
-    #       seems koha-translate installator uses regular libraries 
-    #       and tends to connect/chek for __MEMCACHED_SERVERS__
-    - koha_lng_install.stderr != "\nConnection to the memcached servers '__MEMCACHED_SERVERS__' failed. Are the unix socket permissions set properly? Is the host reachable?\nIf you ignore this warning, you will face performance issues\n\nConnection to the memcached servers '__MEMCACHED_SERVERS__' failed. Are the unix socket permissions set properly? Is the host reachable?\nIf you ignore this warning, you will face performance issues\n\nConnection to the memcached servers '__MEMCACHED_SERVERS__' failed. Are the unix socket permissions set properly? Is the host reachable?\nIf you ignore this warning, you will face performance issues"
-    - koha_lng_install.rc != 0
 
   # TODO: might be another action for "update" if installed:
   # koha-translate --update fi-FI 
