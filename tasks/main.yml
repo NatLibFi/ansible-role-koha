@@ -132,6 +132,10 @@
   failed_when: koha_languages_install.stderr != ''
   when: item not in koha_installed_languages.stdout
 
-  # TODO: might be another action for "update" if installed:
-  # koha-translate --update fi-FI
-
+- name: Update translations
+  with_items: "{{ koha_languages }}"
+  command: "koha-translate --update {{ item }}"
+  environment:
+    MEMCACHED_SERVERS: '127.0.0.1:11211'
+    MEMCACHED_NAMESPACE: '{{ koha_memcached_ns_prefix }}{{ koha_instance_name }}'
+  when: item in koha_installed_languages.stdout
