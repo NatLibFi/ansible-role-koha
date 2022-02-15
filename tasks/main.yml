@@ -47,6 +47,7 @@
     repo: "{{ koha_secondary_package_repository }}"
     state: present
     filename: koha-secondary
+  when: koha_secondary_package_repository is defined and koha_secondary_package_repository|length > 0
 
 - name: Configure pinning for koha-common
   template:
