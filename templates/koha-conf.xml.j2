@@ -1,5 +1,16 @@
 <yazgfs>
+ <!-- dummy set of listen/server needs to be present since KohaCommunity 21.11 -->
+ <listen id="biblioserver" ></listen>
+ <listen id="authorityserver" ></listen>
+ <!-- BIBLIOGRAPHIC RECORDS -->
+ <server id="biblioserver" listenref="biblioserver"></server>
+ <serverinfo id="biblioserver"></serverinfo>
+ <!-- AUTHORITY RECORDS -->
+ <server id="authorityserver" listenref="authorityserver" ></server>
+ <serverinfo id="authorityserver"></serverinfo>
+
  <config>
+  <bcrypt_settings>{{ koha_instance_bcrypthash }}</bcrypt_settings>
   <db_scheme>mysql</db_scheme>
   <database>{{ koha_db_database }}</database>
   <hostname>{{ koha_db_hostname }}</hostname>
