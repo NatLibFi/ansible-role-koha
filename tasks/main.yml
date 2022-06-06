@@ -220,15 +220,28 @@
   changed_when: '"Plack already enabled for" not in koha_plack_result.stderr'
 
 
-
-- name: Configure apache2
+- name: Configure apache2 sites-available instance config
   template:
     src: apache-conf.j2
-    dest: /etc/apache2/sites-enabled/{{ koha_instance_name }}.conf
+    dest: /etc/apache2/sites-available/{{ koha_instance_name }}.conf
     owner: root
     group: "{{ koha_instance_name }}-koha"
     mode: u=rw,g=r
   register: apache_conf
+
+- name: Add apache2 sites-enabled symlink
+  file:
+    path: /etc/apache2/sites-enabled/{{ koha_instance_name }}.conf
+    src:  /etc/apache2/sites-available/{{ koha_instance_name }}.conf
+    state: link
+    # force: yes
+  when: apache_conf.changed
+  register: apache_conf2
+
+- name: Remove Apache default config file (not needed)
+  file:
+    path: /etc/apache2/sites-enabled/000-default.conf
+    state: absent
 
 - name: Configure apache2 ports
   template:
@@ -279,7 +292,7 @@
   systemd:
     name: apache2
     state: reloaded
-  when: apache_conf.changed or apache_ports_conf.changed
+  when: apache_conf2.changed or apache_ports_conf.changed
 
 
 
