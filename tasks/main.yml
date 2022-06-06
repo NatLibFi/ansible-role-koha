@@ -218,6 +218,7 @@
     - koha_plack_result.rc != 0
     - '"Plack already enabled for" not in koha_plack_result.stderr'
   changed_when: '"Plack already enabled for" not in koha_plack_result.stderr'
+  check_mode: no
 
 
 - name: Configure apache2 sites-available instance config
