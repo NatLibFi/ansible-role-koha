@@ -95,6 +95,22 @@
     mode: u=rw,g=r,o=r
   when: koha_override_koha_crons | bool
 
+- name: "Hotfix: Install extra required packages"
+  package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - libtext-csv-encoded-perl
+    - libemail-address-perl
+    - libmojo-jwt-perl
+    - libauth-googleauth-perl
+    - libcrypt-cbc-perl
+
+  # libcrypt-openssl-bignum-perl
+  # libcrypt-openssl-random-perl
+  # libcrypt-openssl-rsa-perl
+  # libmojolicious-plugin-oauth2-perl
+
 - name: Install Koha packages
   package:
     name: "{{ item }}"
