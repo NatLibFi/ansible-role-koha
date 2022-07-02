@@ -76,5 +76,8 @@
   <timezone></timezone>
   <dev_install>0</dev_install>
   <strict_sql_modes>0</strict_sql_modes>
+{% if koha_config_raw_extras is defined and koha_config_raw_extras %}
+{{ koha_config_raw_extras }}
+{% endif %}
  </config>
 </yazgfs>
