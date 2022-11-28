@@ -17,6 +17,11 @@
   SetEnv KOHA_CONF "/etc/koha/sites/{{ koha_instance_name }}/koha-conf.xml"
   AssignUserID {{ koha_instance_name }}-koha {{ koha_instance_name }}-koha
 
+  <Directory "/var/lib/koha/{{ koha_instance_name }}/plugins">
+      Require all granted
+  </Directory>
+  Alias /plugin/ "/var/lib/koha/{{ koha_instance_name }}/plugins/"
+
   SSLEngine on
   SSLCertificateFile "{{ koha_ssl_cert }}"
   SSLCertificateKeyFile "{{ koha_ssl_cert_priv_key }}"
