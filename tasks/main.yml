@@ -274,12 +274,20 @@
   changed_when: '"SIP server already enabled" not in koha_sip_result.stdout'
   when: koha_sip_enable
 
+- name: "Disable Koha's INDEXER Service (Zebra). Consider Bugs XXXXX, XXXXX (TBA!) in KC BZ"
+  become: true
+  lineinfile:
+    path: /etc/default/koha-common
+    regexp: '^USE_INDEXER_DAEMON="(no|yes)"'
+    line: 'USE_INDEXER_DAEMON="no"'
+  register: koha_indexer_conf
+  when: koha_disable_indexer_daemon is defined and koha_disable_indexer_daemon | bool
 
 - name: Restart koha-common
   systemd:
     state: restarted
     name: koha-common
-  when: koha_conf.changed or koha_sip_conf.changed or koha_sip_result.changed
+  when: koha_conf.changed or koha_sip_conf.changed or koha_sip_result.changed or koha_indexer_conf.changed
 
 - name: Restart memcached
   systemd:
