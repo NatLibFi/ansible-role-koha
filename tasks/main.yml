@@ -1,15 +1,16 @@
-- name: Set server timezone to {{ koha_server_timezone }}
+---
+
+- name: "Set server timezone to {{ koha_server_timezone }}"
   timezone:
     name: "{{ koha_server_timezone }}"
 
-- name: Check to have {{ koha_domain }} domain in /etc/hosts
-  become: yes
+- name: "Check to have {{ koha_domain }} domain in /etc/hosts"
+  become: true
   lineinfile:
     path: /etc/hosts
     line: "127.0.1.1 {{ koha_domain }}"
     insertafter: '127\.0\.0\.1 localhost'
     state: present
-
 
 
 - name: Add primary repository signing key
@@ -33,9 +34,9 @@
   apt_key:
     keyserver: "{{ koha_secondary_keyserver }}"
     id: "{{ koha_secondary_signing_key_id }}"
-  when: 
-   - koha_secondary_signing_key_id is defined and koha_secondary_signing_key_id|length > 0
-   - koha_secondary_keyserver is defined and koha_secondary_keyserver|length > 0
+  when:
+    - koha_secondary_signing_key_id is defined and koha_secondary_signing_key_id|length > 0
+    - koha_secondary_keyserver is defined and koha_secondary_keyserver|length > 0
 
 - name: Add secondary repository signing key by content
   apt_key:
@@ -109,7 +110,6 @@
   when: mysql_enable_backups is defined and mysql_enable_backups
 
 
-
 - name: Enable required Apache modules
   apache2_module:
     name: "{{ item }}"
@@ -121,7 +121,6 @@
     - proxy_http
     - ssl
   register: apache_modules
-
 
 
 - name: Assign 'koha user exists' test variable
@@ -224,7 +223,7 @@
     - koha_plack_result.rc != 0
     - '"Plack already enabled for" not in koha_plack_result.stderr'
   changed_when: '"Plack already enabled for" not in koha_plack_result.stderr'
-  check_mode: no
+  check_mode: false
 
 
 - name: Configure apache2 sites-available instance config
@@ -276,7 +275,6 @@
   when: koha_sip_enable
 
 
-
 - name: Restart koha-common
   systemd:
     state: restarted
@@ -302,7 +300,6 @@
   when: apache_conf2.changed or apache_ports_conf.changed
 
 
-
 - name: Check for installed translations
   command: "koha-translate --list"
   environment:
@@ -310,7 +307,7 @@
     MEMCACHED_NAMESPACE: '{{ koha_memcached_ns_prefix }}{{ koha_instance_name }}'
   register: koha_installed_languages
   failed_when: koha_installed_languages.stderr != ''
-  changed_when: False
+  changed_when: false
 
 - name: Install translations
   with_items: "{{ koha_languages }}"
@@ -320,4 +317,5 @@
     MEMCACHED_NAMESPACE: '{{ koha_memcached_ns_prefix }}{{ koha_instance_name }}'
   register: koha_languages_install
   failed_when: koha_languages_install.stderr != ''
-  when: koha_installed_languages is defined and koha_installed_languages.stdout is defined and item not in koha_installed_languages.stdout
+  when: koha_installed_languages is defined and koha_installed_languages.stdout is defined
+        and item not in koha_installed_languages.stdout
