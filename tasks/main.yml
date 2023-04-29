@@ -226,14 +226,38 @@
   check_mode: false
 
 
+# SITE APACHE CONFIG SET UP: sites-available/{{ koha_instance_name }}.conf
+# =========================
+
+- name: Set per-host apache template
+  set_fact:
+    apache_template_file: "{{ inventory_dir }}/host_templates/{{ inventory_hostname }}/apache-conf.j2"
+
+- name: Set intentory apache template if no per-host
+  set_fact:
+    apache_template_file: "{{ inventory_dir }}/templates/apache-conf.j2"
+  when: not apache_template_file is file
+
+- name: Set universal apache template if no per-host
+  set_fact:
+    apache_template_file: "apache-conf.j2"
+  when: not apache_template_file is file
+
+# - debug:
+#     msg: "{{ apache_template_file }}"
+#   changed_when: true
+
 - name: Configure apache2 sites-available instance config
   template:
-    src: apache-conf.j2
+    src: "{{ apache_template_file }}"
     dest: /etc/apache2/sites-available/{{ koha_instance_name }}.conf
     owner: root
     group: "{{ koha_instance_name }}-koha"
     mode: u=rw,g=r
   register: apache_conf
+
+# =========================
+
 
 - name: Add apache2 sites-enabled symlink
   file:
