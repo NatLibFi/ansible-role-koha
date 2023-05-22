@@ -25,7 +25,7 @@ supports Elasticsearch as the search engine.
 * ```koha_override_hourly_crons``` - Whether to override hourly cronjobs
 * ```koha_override_daily_crons``` - Whether to override daily cronjobs
 * ```koha_override_monthly_crons``` - Whether to override monthly cronjobs
-* ```koha_override_koha_crons``` - Whether to override koha cronjobs
+* ```koha_override_custom_crons``` - Whether to override koha-instance custom cronjobs
 
 ## License
 

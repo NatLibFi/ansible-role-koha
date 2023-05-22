@@ -99,6 +99,16 @@
   when: koha_override_koha_crons | bool
   tags: crontabs
 
+- name: Override /etc/cron.d/koha-common-custom crons
+  template:
+    src: koha-common-custom.j2
+    dest: /etc/cron.d/koha-common-custom
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+  when: koha_override_custom_crons | bool
+  tags: crontabs
+
 - name: Install Koha packages
   package:
     name: "{{ item }}"
