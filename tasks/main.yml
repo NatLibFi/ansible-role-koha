@@ -66,6 +66,7 @@
     group: root
     mode: u=rwx,g=rx,o=rx
   when: koha_override_hourly_crons | bool
+  tags: crontabs
 
 - name: Override Koha daily crons
   template:
@@ -75,6 +76,9 @@
     group: root
     mode: u=rwx,g=rx,o=rx
   when: koha_override_daily_crons | bool
+  tags:
+    - crontabs
+    - cron_daily
 
 - name: Override Koha monthly crons
   template:
@@ -84,6 +88,7 @@
     group: root
     mode: u=rwx,g=rx,o=rx
   when: koha_override_monthly_crons | bool
+  tags: crontabs
 
 - name: Override /etc/cron.d/koha-common crons
   template:
@@ -93,6 +98,7 @@
     group: root
     mode: u=rw,g=r,o=r
   when: koha_override_koha_crons | bool
+  tags: crontabs
 
 - name: Install Koha packages
   package:
