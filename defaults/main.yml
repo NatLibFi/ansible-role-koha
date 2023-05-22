@@ -34,6 +34,7 @@ koha_override_hourly_crons: false
 koha_override_daily_crons: false
 koha_override_monthly_crons: false
 koha_override_koha_crons: false
+koha_override_custom_crons: false
 
 koha_sip_enable: false
 koha_sip_port: 6002
