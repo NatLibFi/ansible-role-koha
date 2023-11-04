@@ -240,6 +240,74 @@
   check_mode: false
 
 
+# SITE APACHE CONFIG SET UP: http-auth passby _ips_allowed.apache.conf
+# =========================
+
+# DANGER: this feature requires patched Koha: custom build with
+# 'kk-73-OURFEATURE-httpauth-compatibility' branch which adds
+# x-koha-httpauthlayer header variable to off away plack Basic auth for a moment
+
+- name: Set per-host apache http-auth passby _ips_allowed
+  set_fact:
+    apache_ips_allowed_file: "{{ inventory_dir }}/host_templates/{{ inventory_hostname }}/_ips_allowed.apache.conf.j2"
+
+- name: Set intentory apache http-auth passby _ips_allowed if no per-host
+  set_fact:
+    apache_ips_allowed_file: "{{ inventory_dir }}/templates/_ips_allowed.apache.conf.j2"
+  when: not apache_ips_allowed_file is file
+
+- name: Set universal apache http-auth passby _ips_allowed if no per-host
+  set_fact:
+    apache_ips_allowed_file: "_ips_allowed.apache.conf.j2"
+  when: not apache_ips_allowed_file is file
+
+# - debug:
+#     msg: "{{ apache_ips_allowed_file }} / {{ apache_ips_allowed_file is file | bool }}"
+#   changed_when: true
+
+- name: Make apache http-auth passby _ips_allowed config
+  template:
+    src: "{{ apache_ips_allowed_file }}"
+    dest: /etc/koha/_ips_allowed.apache.conf
+    owner: root
+    group: root
+    mode: u=rw,og=r
+  when: apache_ips_allowed_file is file
+  register: apache_conf
+
+# === Next file from set:
+
+- name: Set per-host apache-shared-intranet-plack
+  set_fact:
+    apache_shared_intra_plack_file: "{{ inventory_dir }}/host_templates/{{ inventory_hostname }}/apache-shared-intranet-plack.conf.j2"
+
+- name: Set intentory apache-shared-intranet-plack if no per-host
+  set_fact:
+    apache_shared_intra_plack_file: "{{ inventory_dir }}/templates/apache-shared-intranet-plack.conf.j2"
+  when: not apache_shared_intra_plack_file is file
+
+- name: Set universal apache-shared-intranet-plack if no per-host
+  set_fact:
+    apache_shared_intra_plack_file: "apache-shared-intranet-plack.conf.j2"
+  when: not apache_shared_intra_plack_file is file
+
+# - debug:
+#     msg: "{{ apache_shared_intra_plack_file }} / {{ apache_shared_intra_plack_file is file | bool }}"
+#   changed_when: true
+
+- name: Make apache-shared-intranet-plack config
+  template:
+    src: "{{ apache_shared_intra_plack_file }}"
+    dest: /etc/koha/apache-shared-intranet-plack.conf
+    owner: root
+    group: root
+    mode: u=rw,og=r
+  when: apache_shared_intra_plack_file is file
+  register: apache_conf
+
+# =========================
+
+
 # SITE APACHE CONFIG SET UP: sites-available/{{ koha_instance_name }}.conf
 # =========================
 
