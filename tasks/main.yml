@@ -24,10 +24,17 @@
   when: koha_signing_key_content is defined and koha_signing_key_content|length > 0
 
 - name: Add primary repository
-  apt_repository:
-    repo: "{{ koha_package_repository }}"
+  ansible.builtin.deb822_repository:
+    name: koha-primary
+    types: "{{ koha_package_repository.split()[0] }}"
+    uris: "{{ koha_package_repository.split()[1] }}"
+    suites: "{{ koha_package_repository.split()[2] }}"
+    components: "{{ koha_package_repository.split()[3:] }}"
+    signed_by: "{{ koha_signing_key_content | default(koha_signing_key_id | default(omit)) }}"
     state: present
-    filename: koha-primary
+    install_python_debian: true
+  register: koha_primary_repository
+  when: koha_package_repository is defined and koha_package_repository|length > 0
 
 - name: Add secondary package repository signing key
   apt_key:
@@ -43,11 +50,22 @@
   when: koha_secondary_signing_key_content is defined and koha_secondary_signing_key_content|length > 0
 
 - name: Add secondary repository
-  apt_repository:
-    repo: "{{ koha_secondary_package_repository }}"
+  ansible.builtin.deb822_repository:
+    name: koha-secondary
+    types: "{{ koha_secondary_package_repository.split()[0] }}"
+    uris: "{{ koha_secondary_package_repository.split()[1] }}"
+    suites: "{{ koha_secondary_package_repository.split()[2] }}"
+    components: "{{ koha_secondary_package_repository.split()[3:] }}"
+    signed_by: "{{ koha_secondary_signing_key_content | default(koha_secondary_signing_key_id | default(omit)) }}"
     state: present
-    filename: koha-secondary
+    install_python_debian: true
+  register: koha_secondary_repository
   when: koha_secondary_package_repository is defined and koha_secondary_package_repository|length > 0
+
+- name: Update apt cache after repository changes
+  apt:
+    update_cache: true
+  when: koha_primary_repository is changed or koha_secondary_repository is changed
 
 - name: Configure pinning for koha-common
   template:
