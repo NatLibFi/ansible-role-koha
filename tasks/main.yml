@@ -12,16 +12,11 @@
     insertafter: '127\.0\.0\.1 localhost'
     state: present
 
-- name: Add primary repository signing key
-  apt_key:
-    keyserver: "{{ koha_keyserver }}"
-    id: "{{ koha_signing_key_id }}"
-  when: koha_signing_key_id is defined and koha_signing_key_id|length > 0
-
-- name: Add primary repository signing key by content
-  apt_key:
-    data: "{{ koha_signing_key_content }}"
-  when: koha_signing_key_content is defined and koha_signing_key_content|length > 0
+- name: Remove legacy primary repository list
+  file:
+    path: /etc/apt/sources.list.d/koha-primary.list
+    state: absent
+  register: koha_primary_legacy_repository
 
 - name: Add primary repository
   ansible.builtin.deb822_repository:
@@ -30,24 +25,17 @@
     uris: "{{ koha_package_repository.split()[1] }}"
     suites: "{{ koha_package_repository.split()[2] }}"
     components: "{{ koha_package_repository.split()[3:] }}"
-    signed_by: "{{ koha_signing_key_content | default(koha_signing_key_id | default(omit)) }}"
+    signed_by: "{{ koha_signing_key_content | default('https://' ~ koha_keyserver ~ '/pks/lookup?op=get&options=mr&search=0x' ~ koha_signing_key_id) }}"
     state: present
     install_python_debian: true
   register: koha_primary_repository
   when: koha_package_repository is defined and koha_package_repository|length > 0
 
-- name: Add secondary package repository signing key
-  apt_key:
-    keyserver: "{{ koha_secondary_keyserver }}"
-    id: "{{ koha_secondary_signing_key_id }}"
-  when:
-    - koha_secondary_signing_key_id is defined and koha_secondary_signing_key_id|length > 0
-    - koha_secondary_keyserver is defined and koha_secondary_keyserver|length > 0
-
-- name: Add secondary repository signing key by content
-  apt_key:
-    data: "{{ koha_secondary_signing_key_content }}"
-  when: koha_secondary_signing_key_content is defined and koha_secondary_signing_key_content|length > 0
+- name: Remove legacy secondary repository list
+  file:
+    path: /etc/apt/sources.list.d/koha-secondary.list
+    state: absent
+  register: koha_secondary_legacy_repository
 
 - name: Add secondary repository
   ansible.builtin.deb822_repository:
@@ -56,7 +44,7 @@
     uris: "{{ koha_secondary_package_repository.split()[1] }}"
     suites: "{{ koha_secondary_package_repository.split()[2] }}"
     components: "{{ koha_secondary_package_repository.split()[3:] }}"
-    signed_by: "{{ koha_secondary_signing_key_content | default(koha_secondary_signing_key_id | default(omit)) }}"
+    signed_by: "{{ koha_secondary_signing_key_content | default('https://' ~ koha_secondary_keyserver ~ '/pks/lookup?op=get&options=mr&search=0x' ~ koha_secondary_signing_key_id) }}"
     state: present
     install_python_debian: true
   register: koha_secondary_repository
@@ -65,7 +53,11 @@
 - name: Update apt cache after repository changes
   apt:
     update_cache: true
-  when: koha_primary_repository is changed or koha_secondary_repository is changed
+  when: >
+    koha_primary_legacy_repository is changed or
+    koha_primary_repository is changed or
+    koha_secondary_legacy_repository is changed or
+    koha_secondary_repository is changed
 
 - name: Configure pinning for koha-common
   template:
