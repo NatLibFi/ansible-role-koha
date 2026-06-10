@@ -206,10 +206,19 @@
     mode: u=rw,g=r,o=r
   when: koha_custom_z3950_config | bool
 
-- name: Allow reading log4perl.conf for everybody (Z39.50 needs it)
-  file:
-    path: /etc/koha/sites/{{ koha_instance_name }}/log4perl.conf
+- name: Configure log4perl.conf
+  template:
+    src: log4perl.conf.j2
+    dest: /etc/koha/sites/{{ koha_instance_name }}/log4perl.conf
+    owner: "{{ koha_instance_name }}-koha"
+    group: "{{ koha_instance_name }}-koha"
     mode: u=rw,g=r,o=r
+  tags: log4perl
+
+# - name: Allow reading log4perl.conf for everybody (Z39.50 needs it)
+#   file:
+#     path: /etc/koha/sites/{{ koha_instance_name }}/log4perl.conf
+#     mode: u=rw,g=r,o=r
 
 - name: Configure OAI-PMH settings
   template:
