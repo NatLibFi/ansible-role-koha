@@ -55,7 +55,7 @@
   SSLSessionTickets       off
 
   ServerName {{ koha_domain }}
-  ProxyPass / http://127.0.0.1:2100/
+  ProxyPass / http://127.0.0.1:{{ koha_sru_port }}/
 
   ErrorLog /var/log/koha/{{ koha_instance_name }}/sru-apache-error.log
 </VirtualHost>
