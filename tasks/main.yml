@@ -4,7 +4,7 @@
   timezone:
     name: "{{ koha_server_timezone }}"
 
-- name: "Check to have {{ koha_domain }} domain in /etc/hosts"
+- name: "Check to have koha domain domain in /etc/hosts"
   become: true
   lineinfile:
     path: /etc/hosts
