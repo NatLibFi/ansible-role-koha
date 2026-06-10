@@ -77,6 +77,20 @@
   <timezone></timezone>
   <dev_install>0</dev_install>
   <strict_sql_modes>0</strict_sql_modes>
+
+  <message_broker>
+    <hostname>localhost</hostname>
+    <port>61613</port>
+    <username>guest</username>
+    <password>guest</password>
+    <vhost></vhost>
+  </message_broker>
+
+  <background_jobs_worker>
+    <!-- Max simultaneous processes per worker -->
+    <max_processes>{{ koha_worker_max_processes }}</max_processes>
+  </background_jobs_worker>
+
 {% if koha_config_raw_extras is defined and koha_config_raw_extras %}
 {{ koha_config_raw_extras }}
 {% endif %}
