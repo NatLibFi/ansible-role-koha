@@ -140,6 +140,14 @@
     - koha-common
     - koha-elasticsearch
 
+- name: Disable memcached IPv6 listener when IPv6 is disabled
+  lineinfile:
+    path: /etc/memcached.conf
+    regexp: '^-l ::1$'
+    state: absent
+  register: memcached_ipv6_listener
+  when: disable_ipv6 | default(false) | bool
+
 - name: Install mariadb-backup package
   package:
     name: mariadb-backup
@@ -434,7 +442,7 @@
   systemd:
     state: restarted
     name: memcached
-  when: koha_conf.changed
+  when: koha_conf.changed or memcached_ipv6_listener is changed
 
 - name: Restart Apache
   systemd:
